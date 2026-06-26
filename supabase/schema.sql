@@ -191,3 +191,20 @@ begin
     execute format('grant select on public.%I to anon, authenticated', table_name);
   end loop;
 end $$;
+
+drop policy if exists "public create draft work orders" on public.work_orders;
+create policy "public create draft work orders"
+  on public.work_orders
+  for insert
+  with check (status = 'Draft');
+
+grant insert (
+  technician_id,
+  service_category,
+  status,
+  priority,
+  summary,
+  scheduled_date,
+  estimated_revenue,
+  estimated_margin
+) on public.work_orders to anon, authenticated;

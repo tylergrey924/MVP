@@ -79,6 +79,7 @@ export async function getDispatchData(): Promise<DispatchData> {
       .slice(0, 6),
     messages: dataset.messages.slice(0, 6),
     lowStockParts: dataset.parts.filter((part) => part.quantityOnHand <= part.reorderPoint),
+    partsInventory: dataset.parts,
     technicians: dataset.employees.filter((employee) => employee.isTechnician)
   };
 }
@@ -214,7 +215,7 @@ function mockDataset(): DemoDataset {
 function buildExecutiveDashboard(dataset: DemoDataset): ExecutiveDashboardData {
   const completed = dataset.workOrders.filter((order) => order.status === "Completed" || order.status === "Invoiced");
   const openWorkOrders = dataset.workOrders.filter(
-    (order) => order.status === "Scheduled" || order.status === "In Progress" || order.status === "Delayed"
+    (order) => order.status === "Draft" || order.status === "Scheduled" || order.status === "In Progress" || order.status === "Delayed"
   );
   const delayedWorkOrders = dataset.workOrders.filter((order) => order.status === "Delayed");
   const lowStockParts = dataset.parts.filter((part) => part.quantityOnHand <= part.reorderPoint);

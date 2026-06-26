@@ -43,7 +43,7 @@ export type WorkOrder = {
   propertyId: string;
   technicianId: string | null;
   serviceCategory: "HVAC" | "Plumbing" | "Electrical";
-  status: "Scheduled" | "In Progress" | "Completed" | "Delayed" | "Invoiced";
+  status: "Draft" | "Scheduled" | "In Progress" | "Completed" | "Delayed" | "Invoiced";
   priority: "Low" | "Normal" | "High" | "Emergency";
   summary: string;
   scheduledDate: string;
@@ -179,7 +179,28 @@ export type DispatchData = {
   urgentWorkOrders: WorkOrder[];
   messages: CustomerMessage[];
   lowStockParts: PartInventory[];
+  partsInventory: PartInventory[];
   technicians: Employee[];
+};
+
+export type IntakeClassification = {
+  serviceCategory: WorkOrder["serviceCategory"];
+  urgency: WorkOrder["priority"];
+  sentiment: CustomerMessage["sentiment"];
+  likelyParts: string[];
+  recommendedTechnicianId: string | null;
+  recommendedTechnicianName: string;
+  confidence: number;
+  draftCustomerResponse: string;
+  draftDispatcherNotes: string;
+};
+
+export type IntakeDraftInput = {
+  customerName: string;
+  phone: string;
+  email: string;
+  address: string;
+  message: string;
 };
 
 export type KnowledgeData = {
