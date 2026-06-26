@@ -56,21 +56,7 @@ After applying the schema and setting env vars:
 npm run seed
 ```
 
-The seed script upserts deterministic synthetic records:
-
-- 300 customers
-- 350 properties
-- 18 employees, including 10 field technicians
-- 900 work orders across 24 months
-- 900 appointments
-- 800 invoices
-- payments for most invoices, with some overdue balances
-- 120 maintenance plans
-- 75 parts inventory rows
-- 12 vendors
-- 150 customer messages
-- 150 reviews
-- 12 knowledge articles
+The current seed script inserts the compact deterministic dataset from `data/mock-data.ts`. It is intentionally small for the first cloud deployment pass. Larger synthetic volumes can be added in a later seed-system phase.
 
 ## Mock Fallback Mode
 
