@@ -4,6 +4,31 @@ A cloud-first consulting portfolio demo for a fictional 18-person HVAC, plumbing
 
 The app is designed to deploy early and often to Vercel. It can run with hosted Supabase data, or in mock fallback mode when Supabase is not configured.
 
+Live demo: https://mvp-six-jet.vercel.app/
+
+## Demo Overview
+
+Summit Home Services is fictional. The product is a practical AI, analytics, and automation demo for small service businesses that still rely on Outlook, Excel, QuickBooks, paper forms, and shared folders.
+
+The current demo focuses on three workflows:
+
+- `/dashboard` - Executive Dashboard for revenue, jobs, invoice aging, technician workload, ratings, and recommended actions.
+- `/dispatch` - Dispatch / Work Order Assistant for customer intake classification, draft responses, dispatcher notes, technician suggestions, parts hints, and draft work order creation.
+- `/knowledge` - Internal Knowledge Assistant for deterministic SOP search, cited excerpts, confidence scoring, and recommended next steps.
+
+Supporting verification routes:
+
+- `/admin/seed-status` - table counts and mock/Supabase mode visibility.
+- `/health` - deployment, environment, Supabase connectivity, seed status, and timestamp checks.
+
+## Recommended Walkthrough
+
+1. Start at `/` and explain that Summit Home Services is a fictional 18-person HVAC, plumbing, and electrical company.
+2. Open `/dashboard` to show owner visibility across revenue, cash collection, technician utilization, open work, and customer experience.
+3. Open `/dispatch` and process a sample customer request to show how repetitive intake and response drafting can be accelerated.
+4. Open `/knowledge` and ask an SOP question to show how scattered company knowledge can become searchable and cited.
+5. Close with productized consulting offers: AI Workflow Audit, Executive Dashboard Sprint, Dispatch Automation Prototype, and Internal Knowledge Assistant Sprint.
+
 ## Stack
 
 - Next.js App Router
@@ -61,6 +86,25 @@ The current seed script inserts the compact deterministic dataset from `data/moc
 ## Mock Fallback Mode
 
 If Supabase env vars are missing or Supabase is slow/unavailable, the app still renders using `data/mock-data.ts`. The UI indicates either `Running in Mock Mode` or `Connected to Supabase`.
+
+## What Is Intentionally Not Included Yet
+
+- Authentication and user permissions
+- Paid AI API calls
+- Embeddings or vector search
+- Production-grade workflow approvals
+- Destructive admin actions
+- Service role keys in browser code or Vercel public runtime
+- Real customer, employee, invoice, or service data
+
+## Future Enhancement Ideas
+
+- Add role-based views for owner, dispatcher, technician, and office manager workflows.
+- Expand the synthetic seed system with larger seasonal service history and profitability detail.
+- Add approval queues for draft work orders, customer responses, and invoice follow-ups.
+- Introduce embeddings for knowledge search after the deterministic assistant is validated.
+- Add technician mobile views for closeout notes, parts usage, and job summaries.
+- Add QuickBooks-style invoice reconciliation and cash collection prioritization.
 
 ## Deploying to Vercel
 

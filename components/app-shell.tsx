@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Activity, BarChart3, BookOpenText, DatabaseZap, Mountain, Route } from "lucide-react";
+import { Activity, BarChart3, BookOpenText, DatabaseZap, Home, Mountain, Route } from "lucide-react";
 import { getRuntimeModeLabel } from "@/lib/runtime";
 
 const navigation = [
+  { href: "/", label: "Overview", icon: Home },
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/dispatch", label: "Dispatch", icon: Route },
   { href: "/knowledge", label: "Knowledge", icon: BookOpenText },
@@ -16,7 +17,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-summit-cloud">
       <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-summit-line bg-white px-5 py-6 lg:block">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-md bg-summit-pine text-white">
             <Mountain size={24} aria-hidden="true" />
           </span>
@@ -65,7 +66,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
             <span className="font-bold text-summit-ink">Summit Home Services</span>
           </div>
-          <nav className="mt-3 grid grid-cols-5 gap-1">
+          <nav className="mt-3 grid grid-cols-3 gap-1 sm:grid-cols-6">
             {navigation.map((item) => {
               const Icon = item.icon;
               return (
