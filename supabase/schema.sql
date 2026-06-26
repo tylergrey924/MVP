@@ -1,5 +1,7 @@
 create extension if not exists "pgcrypto";
 
+grant usage on schema public to anon, authenticated;
+
 create or replace function public.set_updated_at()
 returns trigger as $$
 begin
