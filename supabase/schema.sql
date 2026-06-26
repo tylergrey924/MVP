@@ -186,5 +186,6 @@ begin
   loop
     execute format('drop policy if exists "public read demo data" on public.%I', table_name);
     execute format('create policy "public read demo data" on public.%I for select using (true)', table_name);
+    execute format('grant select on public.%I to anon, authenticated', table_name);
   end loop;
 end $$;

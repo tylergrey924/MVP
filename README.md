@@ -46,7 +46,7 @@ Never expose `SUPABASE_SERVICE_ROLE_KEY` in browser code. Do not commit `.env.lo
 4. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel.
 5. Keep `SUPABASE_SERVICE_ROLE_KEY` local or in a trusted one-off seed environment.
 
-The schema enables public read policies for synthetic demo data and does not add authentication yet.
+The schema enables public read policies and explicit `select` grants for synthetic demo data. It does not add authentication yet.
 
 ## Seeding
 
