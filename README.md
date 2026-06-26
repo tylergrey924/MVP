@@ -12,6 +12,7 @@ Summit Home Services is fictional. The product is a practical AI, analytics, and
 
 The current demo focuses on three workflows:
 
+- `/presentation` - Presentation Mode for a 5-7 minute guided client demo with presenter notes and next clicks.
 - `/dashboard` - Executive Dashboard for revenue, jobs, invoice aging, technician workload, ratings, and recommended actions.
 - `/dispatch` - Dispatch / Work Order Assistant for customer intake classification, draft responses, dispatcher notes, technician suggestions, parts hints, and draft work order creation.
 - `/knowledge` - Internal Knowledge Assistant for deterministic SOP search, cited excerpts, confidence scoring, and recommended next steps.
@@ -23,11 +24,12 @@ Supporting verification routes:
 
 ## Recommended Walkthrough
 
-1. Start at `/` and explain that Summit Home Services is a fictional 18-person HVAC, plumbing, and electrical company.
-2. Open `/dashboard` to show owner visibility across revenue, cash collection, technician utilization, open work, and customer experience.
-3. Open `/dispatch` and process a sample customer request to show how repetitive intake and response drafting can be accelerated.
-4. Open `/knowledge` and ask an SOP question to show how scattered company knowledge can become searchable and cited.
-5. Close with productized consulting offers: AI Workflow Audit, Executive Dashboard Sprint, Dispatch Automation Prototype, and Internal Knowledge Assistant Sprint.
+1. Start at `/presentation` for the guided 5-7 minute demo script.
+2. Introduce Summit Home Services as a fictional 18-person HVAC, plumbing, and electrical company.
+3. Open `/dashboard` to show owner visibility across revenue, cash collection, technician utilization, open work, and customer experience.
+4. Open `/dispatch` and process the sample emergency AC request to show how repetitive intake and response drafting can be accelerated.
+5. Open `/knowledge` and ask the no-cool SOP question to show how scattered company knowledge can become searchable and cited.
+6. Close with productized consulting offers: AI Workflow Audit, Executive Dashboard Sprint, Dispatch Automation Prototype, and Internal Knowledge Assistant Sprint.
 
 ## Stack
 

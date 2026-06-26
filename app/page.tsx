@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Gauge,
   MessageSquareText,
+  Presentation,
   Route,
   Search,
   Sparkles,
@@ -124,10 +125,10 @@ export default function HomePage() {
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/dashboard"
+                href="/presentation"
                 className="inline-flex items-center justify-center gap-2 rounded-md bg-summit-pine px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-summit-teal"
               >
-                Start walkthrough
+                Start Presentation Mode
                 <ArrowRight size={17} aria-hidden="true" />
               </Link>
               <Link
@@ -168,6 +169,39 @@ export default function HomePage() {
             </div>
           );
         })}
+      </section>
+
+      <section className="rounded-md border border-summit-line bg-white p-6 shadow-panel">
+        <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div className="flex items-start gap-4">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-summit-pine text-white">
+              <Presentation size={24} aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-summit-teal">Presentation Mode</p>
+              <h2 className="mt-2 text-2xl font-bold text-summit-ink">Run the demo as a guided client story</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600 md:text-base">
+                A 5-7 minute walkthrough with presenter notes, client-facing explanations, and clear
+                next clicks through dashboard, dispatch, and knowledge workflows.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
+            <Link
+              href="/presentation"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-summit-pine px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-summit-teal"
+            >
+              Open Presentation Mode
+              <ArrowRight size={17} aria-hidden="true" />
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-summit-line px-4 py-2.5 text-sm font-semibold text-summit-pine transition hover:bg-summit-cloud"
+            >
+              Skip to dashboard
+            </Link>
+          </div>
+        </div>
       </section>
 
       <section>

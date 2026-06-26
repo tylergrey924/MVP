@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Activity, BarChart3, BookOpenText, DatabaseZap, Home, Mountain, Route } from "lucide-react";
+import { Activity, BarChart3, BookOpenText, DatabaseZap, Home, Mountain, Presentation, Route } from "lucide-react";
 import { getRuntimeModeLabel } from "@/lib/runtime";
 
 const navigation = [
   { href: "/", label: "Overview", icon: Home },
+  { href: "/presentation", label: "Presentation", icon: Presentation },
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/dispatch", label: "Dispatch", icon: Route },
   { href: "/knowledge", label: "Knowledge", icon: BookOpenText },
@@ -66,7 +67,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
             <span className="font-bold text-summit-ink">Summit Home Services</span>
           </div>
-          <nav className="mt-3 grid grid-cols-3 gap-1 sm:grid-cols-6">
+          <nav className="mt-3 grid grid-cols-3 gap-1 sm:grid-cols-4">
             {navigation.map((item) => {
               const Icon = item.icon;
               return (
