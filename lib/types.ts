@@ -126,7 +126,23 @@ export type KnowledgeArticle = {
   title: string;
   category: string;
   summary: string;
+  content?: string;
   updatedAt: string;
+};
+
+export type KnowledgeAnswer = {
+  question: string;
+  answer: string;
+  confidence: number;
+  recommendedNextStep: string;
+  matchedArticles: Array<{
+    id: string;
+    title: string;
+    category: string;
+    excerpt: string;
+    score: number;
+    updatedAt: string;
+  }>;
 };
 
 export type BreakdownPoint = {

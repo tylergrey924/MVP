@@ -563,6 +563,7 @@ function mapKnowledgeArticle(row: Record<string, unknown>): KnowledgeArticle {
     title: String(row.title),
     category: String(row.category),
     summary: String(row.summary ?? row.content ?? ""),
+    content: row.content ? String(row.content) : undefined,
     updatedAt: String(row.updated_at ?? row.created_at)
   };
 }

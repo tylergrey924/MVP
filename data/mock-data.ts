@@ -137,10 +137,54 @@ export const mockReviews: Review[] = [
 ];
 
 export const mockKnowledgeArticles: KnowledgeArticle[] = [
-  { id: "ka-1", title: "Emergency HVAC triage checklist", category: "Dispatch", summary: "Prioritize no-cooling calls during heat advisories, capture system age, symptoms, and vulnerable occupants.", updatedAt: "2026-05-20" },
-  { id: "ka-2", title: "Water heater leak intake", category: "Plumbing", summary: "Confirm active leak, shutoff status, photos, access constraints, and whether same-day replacement may be needed.", updatedAt: "2026-05-14" },
-  { id: "ka-3", title: "Electrical safety escalation", category: "Electrical", summary: "Escalate burning smells, repeated breaker trips, panel heat, and exposed conductors as same-day safety calls.", updatedAt: "2026-04-28" },
-  { id: "ka-4", title: "Invoice follow-up cadence", category: "Office", summary: "Send reminders at 7, 14, and 30 days with commercial balances routed to the office manager.", updatedAt: "2026-04-10" }
+  {
+    id: "ka-1",
+    title: "Emergency HVAC triage checklist",
+    category: "Dispatch",
+    summary: "Prioritize no-cooling calls during heat advisories, capture system age, symptoms, and vulnerable occupants.",
+    content: "For emergency no-cool calls, confirm thermostat setting, system age, whether air is blowing, any water near the unit, vulnerable occupants, pets, and whether the home is above a safe temperature. Prioritize same-day dispatch during heat advisories.",
+    updatedAt: "2026-05-20"
+  },
+  {
+    id: "ka-2",
+    title: "Water heater leak intake",
+    category: "Plumbing",
+    summary: "Confirm active leak, shutoff status, photos, access constraints, and whether same-day replacement may be needed.",
+    content: "For water heater leaks, ask whether water is actively spreading, whether the customer can shut off water, unit type, tank age, install location, photos, and whether hot water is available. If water is spreading, escalate to same-day service.",
+    updatedAt: "2026-05-14"
+  },
+  {
+    id: "ka-3",
+    title: "Electrical safety escalation",
+    category: "Electrical",
+    summary: "Escalate burning smells, repeated breaker trips, panel heat, and exposed conductors as same-day safety calls.",
+    content: "Before electrical work, ask about burning smell, smoke, repeated breaker trips, heat at the panel, water exposure, and exposed conductors. Tell customers not to touch exposed wiring and route active hazards for same-day escalation.",
+    updatedAt: "2026-04-28"
+  },
+  {
+    id: "ka-4",
+    title: "Invoice follow-up cadence",
+    category: "Office",
+    summary: "Send reminders at 7, 14, and 30 days with commercial balances routed to the office manager.",
+    content: "Office staff should send invoice reminders at 7, 14, and 30 days. Larger commercial balances go to the office manager. Refunds, credits, and write-offs require owner or office manager approval before customer promises are made.",
+    updatedAt: "2026-04-10"
+  },
+  {
+    id: "ka-5",
+    title: "Technician closeout note standard",
+    category: "Field",
+    summary: "Technicians should document diagnosis, work performed, parts used, customer approval, photos, and follow-up needs.",
+    content: "Closeout notes should include customer complaint, diagnosis, work performed, parts used, photos when useful, safety concerns, customer approval, invoice readiness, and recommended follow-up or maintenance plan opportunity.",
+    updatedAt: "2026-05-08"
+  },
+  {
+    id: "ka-6",
+    title: "Parts request and inventory workflow",
+    category: "Inventory",
+    summary: "Dispatch should confirm stock, mark shortages, and attach parts requests to the work order before scheduling return visits.",
+    content: "For parts requests, identify the likely SKU or part family, check on-hand quantity, compare against reorder point, note vendor needs, and attach the request to the work order before committing to a return appointment.",
+    updatedAt: "2026-05-02"
+  }
 ];
 
 export const mockSeedRun = {
