@@ -5,6 +5,7 @@ import {
   mockInvoices,
   mockKnowledgeArticles,
   mockMaintenancePlans,
+  mockAppointments,
   mockPartsInventory,
   mockPayments,
   mockProperties,
@@ -15,6 +16,7 @@ import {
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type {
   BreakdownPoint,
+  Appointment,
   CustomerMessage,
   DashboardData,
   DataSource,
@@ -24,6 +26,7 @@ import type {
   Invoice,
   KnowledgeArticle,
   KnowledgeData,
+  MaintenancePlan,
   PartInventory,
   Review,
   SeedStatus,
@@ -53,8 +56,10 @@ const tableNames = [
 type DemoDataset = {
   source: DataSource;
   workOrders: WorkOrder[];
+  appointments: Appointment[];
   invoices: Invoice[];
   employees: Employee[];
+  maintenancePlans: MaintenancePlan[];
   parts: PartInventory[];
   messages: CustomerMessage[];
   reviews: Review[];
@@ -163,10 +168,12 @@ async function getDataset(): Promise<DemoDataset> {
   if (!supabase) return mockDataset();
 
   try {
-    const [workOrders, invoices, employees, parts, messages, reviews] = await Promise.all([
+    const [workOrders, appointments, invoices, employees, maintenancePlans, parts, messages, reviews] = await Promise.all([
       withTimeout(supabase.from("work_orders").select("*").limit(1000), 1800),
+      withTimeout(supabase.from("appointments").select("*").limit(1000), 1800),
       withTimeout(supabase.from("invoices").select("*").limit(1000), 1800),
       withTimeout(supabase.from("employees").select("*").limit(100), 1800),
+      withTimeout(supabase.from("maintenance_plans").select("*").limit(500), 1800),
       withTimeout(supabase.from("parts_inventory").select("*").limit(200), 1800),
       withTimeout(supabase.from("customer_messages").select("*").order("created_at", { ascending: false }).limit(100), 1800),
       withTimeout(supabase.from("reviews").select("*").order("created_at", { ascending: false }).limit(200), 1800)
@@ -177,8 +184,10 @@ async function getDataset(): Promise<DemoDataset> {
     return {
       source: "supabase",
       workOrders: workOrders.data.map(mapWorkOrder),
+      appointments: (appointments.data ?? []).map(mapAppointment),
       invoices: (invoices.data ?? []).map(mapInvoice),
       employees: (employees.data ?? []).map(mapEmployee),
+      maintenancePlans: (maintenancePlans.data ?? []).map(mapMaintenancePlan),
       parts: (parts.data ?? []).map(mapPart),
       messages: (messages.data ?? []).map(mapMessage),
       reviews: (reviews.data ?? []).map(mapReview)
@@ -192,8 +201,10 @@ function mockDataset(): DemoDataset {
   return {
     source: "mock",
     workOrders: mockWorkOrders,
+    appointments: mockAppointments,
     invoices: mockInvoices,
     employees: mockEmployees,
+    maintenancePlans: mockMaintenancePlans,
     parts: mockPartsInventory,
     messages: mockCustomerMessages,
     reviews: mockReviews
@@ -202,17 +213,20 @@ function mockDataset(): DemoDataset {
 
 function buildExecutiveDashboard(dataset: DemoDataset): ExecutiveDashboardData {
   const completed = dataset.workOrders.filter((order) => order.status === "Completed" || order.status === "Invoiced");
+  const openWorkOrders = dataset.workOrders.filter(
+    (order) => order.status === "Scheduled" || order.status === "In Progress" || order.status === "Delayed"
+  );
+  const delayedWorkOrders = dataset.workOrders.filter((order) => order.status === "Delayed");
+  const lowStockParts = dataset.parts.filter((part) => part.quantityOnHand <= part.reorderPoint);
   const paidRevenue = dataset.invoices.reduce((sum, invoice) => sum + Math.max(0, invoice.total - invoice.balance), 0);
+  const completedRevenue = completed.reduce((sum, order) => sum + order.estimatedRevenue, 0);
   const overdueBalance = dataset.invoices
     .filter((invoice) => invoice.status === "Overdue" || invoice.balance > 0)
     .reduce((sum, invoice) => sum + invoice.balance, 0);
   const averageTicket = completed.length
-    ? completed.reduce((sum, order) => sum + order.estimatedRevenue, 0) / completed.length
+    ? completedRevenue / completed.length
     : 0;
-  const averageMargin = completed.length
-    ? completed.reduce((sum, order) => sum + order.estimatedMargin, 0) / completed.length
-    : 0;
-  const activePlans = mockMaintenancePlans.filter((plan) => plan.status === "Active").length;
+  const activePlans = dataset.maintenancePlans.filter((plan) => plan.status === "Active").length;
   const averageRating = dataset.reviews.length
     ? dataset.reviews.reduce((sum, review) => sum + review.rating, 0) / dataset.reviews.length
     : 0;
@@ -229,11 +243,11 @@ function buildExecutiveDashboard(dataset: DemoDataset): ExecutiveDashboardData {
       { label: "Monthly revenue", value: currency(paidRevenue), delta: "+8.4% vs prior month", helper: "Paid invoice revenue in the current demo period", tone: "good" },
       { label: "Jobs completed", value: completed.length.toLocaleString("en-US"), delta: "Field throughput", helper: "Completed and invoiced work orders", tone: "neutral" },
       { label: "Average ticket size", value: currency(averageTicket), delta: "Mixed service revenue", helper: "Average estimated revenue per completed job", tone: "good" },
-      { label: "Gross margin estimate", value: percent(averageMargin), delta: "Portfolio estimate", helper: "Synthetic gross margin from service mix", tone: "neutral" },
-      { label: "Technician utilization", value: percent(utilization / 100), delta: "Balancing opportunity", helper: "Average workload across active technicians", tone: utilization > 85 ? "warn" : "good" },
       { label: "Overdue invoice balance", value: currency(overdueBalance), delta: overdueBalance > 0 ? "Collection follow-up needed" : "No overdue balance", helper: "Open balances past due or unpaid", tone: overdueBalance > 0 ? "warn" : "good" },
       { label: "Active maintenance plans", value: activePlans.toString(), delta: "Recurring revenue base", helper: "Plan customers drive repeat work", tone: "good" },
-      { label: "Average customer rating", value: averageRating ? averageRating.toFixed(1) : "n/a", delta: "Review quality", helper: "Average rating across completed jobs", tone: averageRating < 4 ? "warn" : "good" }
+      { label: "Average customer rating", value: averageRating ? averageRating.toFixed(1) : "n/a", delta: "Review quality", helper: "Average rating across completed jobs", tone: averageRating < 4 ? "warn" : "good" },
+      { label: "Technician utilization", value: percent(utilization / 100), delta: "Balancing opportunity", helper: "Average workload across active technicians", tone: utilization > 85 ? "warn" : "good" },
+      { label: "Open work orders", value: openWorkOrders.length.toLocaleString("en-US"), delta: delayedWorkOrders.length ? `${delayedWorkOrders.length} delayed` : "Queue stable", helper: "Scheduled, in-progress, and delayed jobs", tone: delayedWorkOrders.length ? "warn" : "neutral" }
     ],
     revenueByMonth: monthlyRevenue(dataset.invoices),
     jobsByServiceCategory: countBy(dataset.workOrders, "serviceCategory"),
@@ -241,20 +255,22 @@ function buildExecutiveDashboard(dataset: DemoDataset): ExecutiveDashboardData {
     technicianWorkload,
     overdueInvoicesByAge: overdueBuckets(dataset.invoices),
     averageRatingTrend: ratingTrend(dataset.reviews),
-    insights: [
-      "Revenue is currently driven by higher-value HVAC and commercial electrical jobs.",
-      "Overdue balances are concentrated in larger invoices, making cash collection a near-term opportunity.",
-      "Maintenance plan customers create repeat work that can smooth seasonality.",
-      "Delayed jobs and negative messages tend to cluster around parts availability and communication gaps.",
-      "Technician workload is uneven, suggesting dispatch balancing opportunities."
-    ],
-    recommendedActions: [
-      "Follow up on overdue invoices with a same-day office workflow.",
-      "Promote maintenance plans to repeat residential and light-commercial customers.",
-      "Rebalance dispatch load across technicians before urgent calls stack up.",
-      "Reorder parts that are below their reorder point before they delay jobs.",
-      "Review delayed appointments with lower ratings to improve customer communication."
-    ],
+    insights: buildInsights(dataset, {
+      activePlans,
+      averageRating,
+      overdueBalance,
+      openWorkOrders: openWorkOrders.length,
+      delayedWorkOrders: delayedWorkOrders.length,
+      lowStockParts: lowStockParts.length
+    }),
+    recommendedActions: buildRecommendedActions(dataset, {
+      activePlans,
+      averageRating,
+      overdueBalance,
+      delayedWorkOrders: delayedWorkOrders.length,
+      lowStockParts: lowStockParts.length,
+      utilization
+    }),
     talkTrack: [
       "Owner visibility: one operating view replaces scattered spreadsheets and inbox checks.",
       "Cash collection: overdue balances are surfaced before they become hidden working-capital drag.",
@@ -263,6 +279,80 @@ function buildExecutiveDashboard(dataset: DemoDataset): ExecutiveDashboardData {
       "Customer experience: reviews, delays, and messages reveal where follow-up matters."
     ]
   };
+}
+
+function buildInsights(
+  dataset: DemoDataset,
+  metrics: {
+    activePlans: number;
+    averageRating: number;
+    overdueBalance: number;
+    openWorkOrders: number;
+    delayedWorkOrders: number;
+    lowStockParts: number;
+  }
+) {
+  const revenueByCategory = dataset.workOrders.reduce<Record<string, number>>((totals, order) => {
+    totals[order.serviceCategory] = (totals[order.serviceCategory] ?? 0) + order.estimatedRevenue;
+    return totals;
+  }, {});
+  const topCategory =
+    Object.entries(revenueByCategory).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "service";
+  const overdueBucketsByValue = overdueBuckets(dataset.invoices).filter((bucket) => bucket.value > 0);
+  const highestOverdueBucket = overdueBucketsByValue.sort((a, b) => b.value - a.value)[0]?.label;
+  const delayedAppointments = dataset.appointments.filter((appointment) => appointment.status === "Delayed").length;
+
+  return [
+    `${topCategory} work is currently the largest revenue driver in the visible job mix.`,
+    metrics.overdueBalance > 0
+      ? `Overdue invoice balances are concentrated in ${highestOverdueBucket ?? "open receivables"}, creating a cash-collection opportunity.`
+      : "Open receivables are currently clean, so the office can stay ahead with routine invoice follow-up.",
+    metrics.activePlans > 0
+      ? `${metrics.activePlans} active maintenance plans provide a recurring revenue base and repeat service opportunities.`
+      : "Maintenance plan adoption is not visible yet, so repeat-customer offers should be a sales priority.",
+    metrics.delayedWorkOrders || delayedAppointments
+      ? "Delayed jobs are visible in the operating queue and should be checked against parts availability and customer communication."
+      : "No delayed work is currently visible, which keeps dispatch capacity easier to manage.",
+    metrics.lowStockParts > 0
+      ? `${metrics.lowStockParts} stocked parts are at or below reorder point and could delay upcoming jobs.`
+      : `Customer ratings average ${metrics.averageRating ? metrics.averageRating.toFixed(1) : "n/a"}, with no immediate inventory blocker visible.`
+  ];
+}
+
+function buildRecommendedActions(
+  dataset: DemoDataset,
+  metrics: {
+    activePlans: number;
+    averageRating: number;
+    overdueBalance: number;
+    delayedWorkOrders: number;
+    lowStockParts: number;
+    utilization: number;
+  }
+) {
+  const repeatCustomerCount = new Set(
+    dataset.workOrders
+      .map((order) => order.customerId)
+      .filter((customerId, _index, customerIds) => customerIds.filter((id) => id === customerId).length > 1)
+  ).size;
+
+  return [
+    metrics.overdueBalance > 0
+      ? `Follow up on ${currency(metrics.overdueBalance)} in overdue or unpaid invoice balances.`
+      : "Keep the invoice reminder cadence active so current balances do not age.",
+    repeatCustomerCount || metrics.activePlans < 3
+      ? "Promote maintenance plans to repeat customers and recent high-satisfaction service calls."
+      : "Review maintenance plan renewal dates and protect recurring revenue.",
+    metrics.utilization > 85 || metrics.delayedWorkOrders > 0
+      ? "Rebalance technician schedules before delayed or emergency calls stack up."
+      : "Keep monitoring technician load so dispatch stays balanced as demand changes.",
+    metrics.lowStockParts > 0
+      ? "Reorder low-stock parts that are at or below their reorder point."
+      : "Review truck stock weekly to prevent parts shortages from becoming dispatch delays.",
+    metrics.averageRating && metrics.averageRating < 4.5
+      ? "Investigate lower-rated jobs and tighten post-appointment communication."
+      : "Use positive reviews in follow-up messaging and referral outreach."
+  ];
 }
 
 function buildTechnicianWorkload(dataset: DemoDataset): TechnicianWorkload[] {
@@ -407,6 +497,28 @@ function mapInvoice(row: Record<string, unknown>): Invoice {
     tax: Number(row.tax ?? 0),
     total: Number(row.total ?? 0),
     balance: Number(row.balance ?? 0)
+  };
+}
+
+function mapAppointment(row: Record<string, unknown>): Appointment {
+  return {
+    id: String(row.id),
+    workOrderId: String(row.work_order_id),
+    technicianId: row.technician_id ? String(row.technician_id) : null,
+    scheduledStart: String(row.scheduled_start),
+    scheduledEnd: String(row.scheduled_end),
+    status: String(row.status) as Appointment["status"]
+  };
+}
+
+function mapMaintenancePlan(row: Record<string, unknown>): MaintenancePlan {
+  return {
+    id: String(row.id),
+    customerId: String(row.customer_id),
+    propertyId: String(row.property_id),
+    planName: String(row.plan_name),
+    status: String(row.status) as MaintenancePlan["status"],
+    monthlyPrice: Number(row.monthly_price ?? 0)
   };
 }
 

@@ -4,12 +4,14 @@ import {
   BarChart3,
   Banknote,
   CalendarCheck2,
+  ClipboardList,
   DollarSign,
+  Gauge,
   Lightbulb,
   PackageCheck,
+  ReceiptText,
   Star,
-  TrendingUp,
-  Users
+  Wrench
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -28,10 +30,16 @@ const kpiIcons: LucideIcon[] = [
   DollarSign,
   CalendarCheck2,
   Banknote,
-  TrendingUp,
-  Users,
-  AlertTriangle,
+  ReceiptText,
   PackageCheck,
+  Star,
+  Gauge,
+  ClipboardList
+];
+
+const summaryIcons: LucideIcon[] = [
+  ReceiptText,
+  Wrench,
   Star
 ];
 
@@ -40,6 +48,27 @@ const toneClasses = {
   warn: "bg-amber-50 text-amber-800",
   neutral: "bg-slate-100 text-slate-700"
 };
+
+const toneBorderClasses = {
+  good: "border-emerald-200",
+  warn: "border-amber-200",
+  neutral: "border-summit-line"
+};
+
+const toneIconClasses = {
+  good: "bg-emerald-50 text-emerald-700",
+  warn: "bg-amber-50 text-amber-800",
+  neutral: "bg-summit-cloud text-summit-pine"
+};
+
+const chartColors = [
+  "bg-summit-teal",
+  "bg-summit-pine",
+  "bg-summit-gold",
+  "bg-slate-500",
+  "bg-emerald-600",
+  "bg-amber-600"
+];
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -60,6 +89,7 @@ export default async function DashboardPage() {
       />
 
       <DashboardBanner dashboard={executive} />
+      <ExecutiveSnapshot dashboard={executive} />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {executive.kpis.map((kpi, index) => (
@@ -92,7 +122,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="mt-6 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-        <Panel title="Technician workload and utilization" description="Dispatch balancing view">
+        <Panel title="Technician workload and utilization" description="Dispatch balancing view by field employee">
           <TechnicianTable technicians={executive.technicianWorkload} />
         </Panel>
         <Panel title="Average rating trend" description="Customer experience across recent months">
@@ -118,6 +148,52 @@ export default async function DashboardPage() {
   );
 }
 
+function ExecutiveSnapshot({ dashboard }: { dashboard: ExecutiveDashboardData }) {
+  const summary = [
+    {
+      label: "Cash focus",
+      value: getKpiValue(dashboard, "Overdue invoice balance"),
+      detail: "What the office should collect or keep current this week."
+    },
+    {
+      label: "Field queue",
+      value: getKpiValue(dashboard, "Open work orders"),
+      detail: "Jobs that still need dispatch attention or completion."
+    },
+    {
+      label: "Customer pulse",
+      value: getKpiValue(dashboard, "Average customer rating"),
+      detail: "Visible signal for service quality and follow-up needs."
+    }
+  ];
+
+  return (
+    <section className="mb-6 grid gap-4 lg:grid-cols-3">
+      {summary.map((item, index) => {
+        const Icon = summaryIcons[index] ?? BarChart3;
+        return (
+          <article key={item.label} className="rounded-md border border-summit-line bg-white p-5 shadow-panel">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-summit-pine text-white">
+                <Icon size={20} aria-hidden="true" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-summit-teal">{item.label}</p>
+                <p className="mt-1 text-2xl font-bold text-summit-ink">{item.value}</p>
+                <p className="mt-2 text-sm leading-5 text-slate-600">{item.detail}</p>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </section>
+  );
+}
+
+function getKpiValue(dashboard: ExecutiveDashboardData, label: string) {
+  return dashboard.kpis.find((kpi) => kpi.label === label)?.value ?? "n/a";
+}
+
 function DashboardBanner({ dashboard }: { dashboard: ExecutiveDashboardData }) {
   const ready = dashboard.status === "ready" && !dashboard.message;
 
@@ -141,13 +217,13 @@ function DashboardBanner({ dashboard }: { dashboard: ExecutiveDashboardData }) {
 
 function KpiCard({ kpi, icon: Icon }: { kpi: ExecutiveKpi; icon: LucideIcon }) {
   return (
-    <article className="rounded-md border border-summit-line bg-white p-5 shadow-panel">
+    <article className={`rounded-md border bg-white p-5 shadow-panel ${toneBorderClasses[kpi.tone]}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-slate-500">{kpi.label}</p>
           <p className="mt-3 text-3xl font-bold text-summit-ink">{kpi.value}</p>
         </div>
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-summit-cloud text-summit-pine">
+        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md ${toneIconClasses[kpi.tone]}`}>
           <Icon size={20} aria-hidden="true" />
         </span>
       </div>
@@ -189,7 +265,7 @@ function ColumnChart({ points }: { points: TrendPoint[] }) {
         <div key={point.label} className="flex min-w-0 flex-1 flex-col items-center gap-3">
           <div className="flex h-56 w-full items-end rounded-md bg-summit-cloud px-2">
             <div
-              className="w-full rounded-t-md bg-summit-teal"
+              className="w-full rounded-t-md bg-summit-teal transition-all"
               style={{ height: `${Math.max(8, (point.value / maxValue) * 220)}px` }}
               title={currency.format(point.value)}
             />
@@ -216,7 +292,7 @@ function HorizontalBars({
 
   return (
     <div className="space-y-4">
-      {points.map((point) => (
+      {points.map((point, index) => (
         <div key={point.label}>
           <div className="mb-2 flex items-center justify-between gap-3 text-sm">
             <span className="font-medium text-summit-ink">{point.label}</span>
@@ -224,7 +300,7 @@ function HorizontalBars({
           </div>
           <div className="h-3 rounded-full bg-summit-cloud">
             <div
-              className="h-3 rounded-full bg-summit-teal"
+              className={`h-3 rounded-full ${chartColors[index % chartColors.length]}`}
               style={{ width: `${Math.max(4, (point.value / maxValue) * 100)}%` }}
             />
           </div>
@@ -239,14 +315,14 @@ function TechnicianTable({ technicians: workload }: { technicians: TechnicianWor
 
   return (
     <div className="overflow-hidden rounded-md border border-summit-line">
-      <div className="grid grid-cols-[1.1fr_0.9fr_0.7fr] bg-summit-cloud px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <div className="grid grid-cols-[1.15fr_0.9fr_0.65fr] bg-summit-cloud px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
         <span>Technician</span>
         <span>Utilization</span>
         <span className="text-right">Jobs</span>
       </div>
       <div className="divide-y divide-summit-line">
         {workload.map((tech) => (
-          <div key={tech.name} className="grid grid-cols-[1.1fr_0.9fr_0.7fr] items-center gap-3 px-4 py-3 text-sm">
+          <div key={tech.name} className="grid grid-cols-[1.15fr_0.9fr_0.65fr] items-center gap-3 px-4 py-3 text-sm">
             <div>
               <p className="font-semibold text-summit-ink">{tech.name}</p>
               <p className="text-xs text-slate-500">{currency.format(tech.averageTicket)} avg ticket</p>
